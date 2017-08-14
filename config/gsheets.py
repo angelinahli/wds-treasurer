@@ -1,4 +1,6 @@
 import gspread
+import os
+
 from oauth2client.service_account import ServiceAccountCredentials
 
 scope = [
@@ -6,8 +8,8 @@ scope = [
     'https://www.googleapis.com/auth/drive'
 ]
 
-creds = ServiceAccountCredentials.from_json_keyfile_name('client_secret.json', scope)
-client = gspread.authorize(creds)
+cred_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 
+            'client_secret.json')
 
-rmbs_sht = "WDS Reimbursements 2017-18 (Responses)"
-contacts_sht = "WDS Team 2017-18 (Responses)"
+creds = ServiceAccountCredentials.from_json_keyfile_name(cred_path, scope)
+client = gspread.authorize(creds)
