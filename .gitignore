@@ -4,3 +4,5 @@ template.xlsx
 
 config/client_secret.json
 config/user_info.py
+
+output/user
