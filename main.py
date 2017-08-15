@@ -10,41 +10,54 @@ reimbs = client.open_by_url(usr.rmbs_url).sheet1
 
 class Template:
     """
-    Returns an Excel form, with the option of being filled.
+    Represents an Excel form template, that can additionally
+    be filled with data.
     """
 
-    def __init__(self):
+    def _save_file(wb, filename):
         """
-        template.xlsx is a clean Excel form file,
-        tmp_vars is a dictionary of cell references that need to be filled in
-        the template.
+        Saves files if filename is specified.
         """
-        self.empty = load_workbook(filename = 'template.xlsx')
-        self.tmp_vars = usr.tmp_vars
+        if filename:
+            wb.save(filename)
 
-        self.org_name = usr.org_name
-        self.bookkeeper = usr.bookkeeper
-        self.treasurer = usr.treasurer
+    def get_empty(self, filename=False):
+        """
+        Returns empty template.
+        Optionally saves as an Excel workbook if filename is
+        specified.
+        """
+        wb = load_workbook(filename='template.xlsx')
+        _save_file(wb, filename)
+        return wb
 
-    def get_empty(self):
+    def get_new(self, filename=False):
         """
-        returns empty template.
-        """
-        return self.empty
-
-    def get_new(self):
-        """
-        returns new template with org_name, bookkeeper and
+        Returns new template with org_name, bookkeeper and
         treasurer variables filled.
+        Optionally saves as an Excel workbook if filename is
+        specified.
         """
-        wb = self.empty # would like for this to be self.get_empty() ///// not sure how to do that yet
+        wb = load_workbook(filename = 'template.xlsx')
         ws = wb.active
 
-        ws[self.tmp_vars['org_name']] = self.org_name
-        ws[self.tmp_vars['bookkeeper']] = self.bookkeeper
-        ws[self.tmp_vars['treasurer']] = self.treasurer
+        ws[usr.tmp_vars['org_name']] = usr.org_name
+        ws[usr.tmp_vars['bookkeeper']] = usr.bookkeeper
+        ws[usr.tmp_vars['treasurer']] = usr.treasurer
 
+        _save_file(wb, filename)
         return wb
+
+    def get_completed(self, data_dict, filename=False):
+        """
+        Return completed template file given a dictionary of values
+        to plug into the template.
+        Optionally saves as an Excel workbook if filename is
+        specified.
+
+        data_dict: Dictionary where keys are strings corresponding to
+        keys of usr.tmp_vars dict, and values are values for each user.
+        """
 
 
 
