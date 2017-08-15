@@ -1,12 +1,13 @@
 import gspread
 from openpyxl import Workbook, load_workbook
+from os import remove
 
 import config.user_info as usr
 from config.gsheets import client
 
 # 2 sheets of data required
-contacts = client.open_by_url(usr.contacts_url).sheet1
-reimbs = client.open_by_url(usr.rmbs_url).sheet1
+# contacts = client.open_by_url(usr.contacts_url).sheet1
+# reimbs = client.open_by_url(usr.rmbs_url).sheet1
 
 class Template:
     """
@@ -14,9 +15,9 @@ class Template:
     be filled with data.
     """
 
-    def _save_file(wb, filename):
+    def _save_file(self, wb, filename):
         """
-        Saves files if filename is specified.
+        Saves file if filename is specified.
         """
         if filename:
             wb.save(filename)
@@ -28,7 +29,7 @@ class Template:
         specified.
         """
         wb = load_workbook(filename='template.xlsx')
-        _save_file(wb, filename)
+        self._save_file(wb, filename)
         return wb
 
     def get_new(self, filename=False):
@@ -45,7 +46,7 @@ class Template:
         ws[usr.tmp_vars['bookkeeper']] = usr.bookkeeper
         ws[usr.tmp_vars['treasurer']] = usr.treasurer
 
-        _save_file(wb, filename)
+        self._save_file(wb, filename)
         return wb
 
     def get_completed(self, data_dict, filename=False):
@@ -55,9 +56,15 @@ class Template:
         Optionally saves as an Excel workbook if filename is
         specified.
 
-        data_dict: Dictionary where keys are strings corresponding to
-        keys of usr.tmp_vars dict, and values are values for each user.
+        data_dict: Dictionary of user specific data for each form, where
+        keys are strings corresponding to usr.tmp_vars key names. 
         """
+        wb = self.get_new()
+        ws = wb.active
 
+        for varname in data_dict:
+            # only available data will be filled in
+            ws[usr.tmp_vars[varname]] = data_dict[varname]
 
-
+        self._save_file(wb, filename)
+        return wb
