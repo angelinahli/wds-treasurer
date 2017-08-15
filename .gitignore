@@ -1,3 +1,6 @@
+*.pyc
+
 template.xlsx
 
-config/client.json
+config/client_secret.json
+config/user_info.py
