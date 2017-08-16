@@ -23,16 +23,15 @@ class FormTemplate:
         Given a workbook form with all data already filled in, will
         additionally calculate fund totals.
         """
-        for fund_col in usr.tmp_funds:
-            fund = ws[usr.tmp_vars['evt_fund']].value
-            amt = ws[usr.tmp_vars['evt_amt']].value
+        amt_cell = usr.tmp_vars['evt_amt']
+        cat_cell = usr.tmp_vars['evt_fund']
+        for fund in ['SOFC', 'PROFITS', 'CLCE']:
+            ws[usr.tmp_funds[fund]] = '=sumif({cat},"{fund}",{amt})'.format(
+                                       amt=amt_cell,
+                                       fund=fund,
+                                       cat=cat_cell)
 
-            if not amt:
-                break
-            if fund and fund.upper() == fund_col:
-                ws[usr.tmp_funds[fund_col]] = int(amt)
-                break
-        ws[usr.tmp_funds['TOTAL']] = '=sum({start}:{end}'.format(
+        ws[usr.tmp_funds['TOTAL']] = '=sum({start}:{end})'.format(
                                       start=usr.tmp_funds['SOFC'],
                                       end=usr.tmp_funds['CLCE'])
 
