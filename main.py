@@ -68,7 +68,13 @@ def get_data_dict(ws, row_number, user_data):
         user_values = dict(user_data[username], **rmbs_data)
     except KeyError:
         raise ValueError("User {} has not submitted their info to the contacts form".format(username))
-    return {var: user_values[var] for var in usr.tmp_vars if var in user_values}
+    
+    data_dict = {var: user_values[var] for var in usr.tmp_vars if var in user_values}
+    
+    # format some specific cases
+    data_dict['stu_unit_box'] = 'Unit {}'.format(data_dict['stu_unit_box'])
+    data_dict['fund_total'] = data_dict['evt_amt']    
+    return data_dict
 
 def get_rmbs_data(ws, row_range):
     """
@@ -84,8 +90,10 @@ def make_spreadsheets():
     """
     rmbs = client.open_by_url(usr.rmbs_url).sheet1
     row_range = get_new_row_range(rmbs)
+
     print "loading data for rows", row_range
     all_data = get_rmbs_data(rmbs, row_range)
+
     for data_dict in all_data:
         # date structured as: "%m/%d/%Y %H:%M:%S"
         date = data_dict['date'].split()[0].replace('/', '')
@@ -94,8 +102,10 @@ def make_spreadsheets():
         filepath = "output/user/{name}_{date}.xlsx".format(
                     name=name,
                     date=date)
-        print "generating form for {}".format(name)
+        print "generating form for {}".format(filepath)
         FormTemplate().get_completed(data_dict, filepath)
+
+    update_rows(rmbs, row_range)
 
 make_spreadsheets()
 

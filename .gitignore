@@ -1,6 +1,7 @@
 *.pyc
+~$*.xlsx
 
-template.xlsx
+temp_files/
 
 config/client_secret.json
 config/user_info.py

@@ -1,4 +1,6 @@
 from openpyxl import load_workbook
+from openpyxl.drawing.image import Image
+from openpyxl.styles.borders import Border, Side
 
 import config.user_info as usr
 from config.gsheets import client
@@ -16,13 +18,22 @@ class FormTemplate:
         if filepath:
             wb.save(filepath)
 
+    def _format_sheet(self, ws):
+        """
+        Given a worksheet template, adds seal.
+        """
+        # seal image
+        seal = Image("temp_files/wellesley_seal.png", size=(75, 91))
+        ws.add_image(seal, usr.tmp_vars['seal'])
+
     def get_empty(self, filepath=None):
         """
         Returns empty template.
         Optionally saves as an Excel workbook if filepath is
         specified.
         """
-        wb = load_workbook(filename='template.xlsx')
+        wb = load_workbook(filename='temp_files/template.xlsx')
+        self._format_sheet(ws)
         self._save_file(wb, filepath)
         return wb
 
@@ -33,7 +44,7 @@ class FormTemplate:
         Optionally saves as an Excel workbook if filepath is
         specified.
         """
-        wb = load_workbook(filename='template.xlsx')
+        wb = load_workbook(filename='temp_files/template.xlsx')
         ws = wb.active
 
         ws[usr.tmp_vars['org_name']] = usr.org_name
@@ -41,6 +52,7 @@ class FormTemplate:
         ws[usr.tmp_vars['treasurer']] = usr.treasurer
         ws[usr.tmp_vars['address']] = usr.address
 
+        self._format_sheet(ws)
         self._save_file(wb, filepath)
         return wb
 
@@ -55,7 +67,6 @@ class FormTemplate:
         keys are strings corresponding to usr.tmp_vars key names. 
         """
         wb = self.get_new()
-        self._save_file(wb, 'testing.xlsx')
         ws = wb.active
         for varname in data_dict:
             # only available data will be filled in
