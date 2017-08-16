@@ -72,8 +72,13 @@ def get_data_dict(ws, row_number, user_data):
     data_dict = {var: user_values[var] for var in usr.tmp_vars if var in user_values}
     
     # format some specific cases
+    if ' for tournament' in data_dict['evt_purpose']:
+        data_dict['evt_cat'] = data_dict['evt_purpose'].replace(' for tournament', '')
+    
+    if data_dict['evt_cat'] == 'Transportation':
+        data_dict['evt_fund'] = 'SOFC'   
+    
     data_dict['stu_unit_box'] = 'Unit {}'.format(data_dict['stu_unit_box'])
-    data_dict['fund_total'] = data_dict['evt_amt']    
     return data_dict
 
 def get_rmbs_data(ws, row_range):

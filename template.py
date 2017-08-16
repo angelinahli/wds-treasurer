@@ -18,6 +18,24 @@ class FormTemplate:
         if filepath:
             wb.save(filepath)
 
+    def _calculate_fund_total(self, ws):
+        """
+        Given a workbook form with all data already filled in, will
+        additionally calculate fund totals.
+        """
+        for fund_col in usr.tmp_funds:
+            fund = ws[usr.tmp_vars['evt_fund']].value
+            amt = ws[usr.tmp_vars['evt_amt']].value
+
+            if not amt:
+                break
+            if fund and fund.upper() == fund_col:
+                ws[usr.tmp_funds[fund_col]] = int(amt)
+                break
+        ws[usr.tmp_funds['TOTAL']] = '=sum({start}:{end}'.format(
+                                      start=usr.tmp_funds['SOFC'],
+                                      end=usr.tmp_funds['CLCE'])
+
     def _format_sheet(self, ws):
         """
         Given a worksheet template, adds seal.
@@ -71,5 +89,26 @@ class FormTemplate:
         for varname in data_dict:
             # only available data will be filled in
             ws[usr.tmp_vars[varname]] = data_dict[varname]
+        self._calculate_fund_total(ws)
         self._save_file(wb, filepath)
         return wb
+
+    def get_existing(self, filepath):
+        """
+        retrieves and returns an existing template.
+        """
+        return load_workbook(filename=filepath)
+
+    def format_existing(self, filepath):
+        """
+        formats existing template and then returns new file and saves
+        with new filename.
+        """
+        wb = self.get_existing(filepath)
+        ws = wb.active
+        new_filepath = '{old_filename}_new.xlsx'.format(
+                         old_filename=filepath.split('.')[0])
+
+        self._format_sheet(ws)
+        self._calculate_fund_total(ws)
+        self._save_file(wb, new_filepath)
