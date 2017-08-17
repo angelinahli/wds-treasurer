@@ -68,20 +68,15 @@ def get_data_dict(ws, row_number, user_data):
         user_values = dict(user_data[username], **rmbs_data)
     except KeyError:
         raise ValueError("User {} has not submitted their info to the contacts form".format(username))
-    
     data_dict = {var: user_values[var] for var in usr.tmp_vars if var in user_values}
-
     if ' for tournament' in data_dict['evt_purpose']:
         data_dict['evt_cat'] = data_dict['evt_purpose'].replace(' for tournament', '')
-    
     if data_dict['evt_cat'] == 'Transportation':
         data_dict['evt_fund'] = 'SOFC'
-
     for value in ['evt_amt', 'evt_num']:
         current_value = data_dict[value]
         if current_value:
             data_dict[value] = int(current_value)
-    
     data_dict['stu_unit_box'] = 'Unit {}'.format(data_dict['stu_unit_box'])
     return data_dict
 
@@ -98,13 +93,13 @@ def make_forms(outdir):
     """
     when run, will automatically generate forms for all non
     processed reimbursement entries, and save those forms in output/user.
+    returns the filepaths of the forms generated for later use.
     """
     rmbs = client.open_by_url(usr.rmbs_url).sheet1
     row_range = get_new_row_range(rmbs)
-
     print "Loading data for rows", row_range
     all_data = get_rmbs_data(rmbs, row_range)
-
+    filepaths = []
     for data_dict in all_data:
         # date structured as: "%m/%d/%Y %H:%M:%S"
         date = data_dict['date'].split()[0].replace('/', '')
@@ -114,7 +109,8 @@ def make_forms(outdir):
                     outdir=outdir,
                     name=name,
                     date=date)
-        print "Generating form for {}".format(filepath)
+        print "Generating form {}".format(filepath)
+        filepaths.append(filepath)
         FormTemplate().get_completed(data_dict, filepath)
-
     update_rows(rmbs, row_range)
+    return filepaths

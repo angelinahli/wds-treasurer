@@ -64,10 +64,10 @@ class FormTemplate:
         wb = load_workbook(filename='temp_files/template.xlsx')
         ws = wb.active
 
-        ws[usr.tmp_vars['org_name']] = usr.org_name
-        ws[usr.tmp_vars['bookkeeper']] = usr.bookkeeper
-        ws[usr.tmp_vars['treasurer']] = usr.treasurer
-        ws[usr.tmp_vars['address']] = usr.address
+        ws[usr.tmp_vars['org_name']] = usr.ORG_NAME
+        ws[usr.tmp_vars['bookkeeper']] = usr.BOOKKEEPER
+        ws[usr.tmp_vars['treasurer']] = usr.TREASURER
+        ws[usr.tmp_vars['address']] = usr.ADDRESS
 
         self._format_sheet(ws)
         self._save_file(wb, filepath)
