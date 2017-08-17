@@ -40,7 +40,7 @@ class FormTemplate:
         Given a worksheet template, adds seal.
         """
         # seal image
-        seal = Image("temp_files/wellesley_seal.png", size=(75, 91))
+        seal = Image("temp/wellesley_seal.png", size=(75, 91))
         ws.add_image(seal, usr.tmp_vars['seal'])
 
     def get_empty(self, filepath=None):
@@ -49,7 +49,7 @@ class FormTemplate:
         Optionally saves as an Excel workbook if filepath is
         specified.
         """
-        wb = load_workbook(filename='temp_files/template.xlsx')
+        wb = load_workbook(filename='temp/template.xlsx')
         self._format_sheet(ws)
         self._save_file(wb, filepath)
         return wb
@@ -61,7 +61,7 @@ class FormTemplate:
         Optionally saves as an Excel workbook if filepath is
         specified.
         """
-        wb = load_workbook(filename='temp_files/template.xlsx')
+        wb = load_workbook(filename='temp/template.xlsx')
         ws = wb.active
 
         ws[usr.tmp_vars['org_name']] = usr.ORG_NAME

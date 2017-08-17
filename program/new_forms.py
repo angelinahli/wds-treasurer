@@ -2,7 +2,7 @@ import gspread
 
 import config.user_info as usr
 from config.gsheets import client
-from template import FormTemplate
+from program.template import FormTemplate
 
 def get_user_dict():
     """
@@ -10,7 +10,7 @@ def get_user_dict():
     with username as key, and user's dictionary data as values.
     """
     cols = usr.contacts_cols
-    contacts = client.open_by_url(usr.contacts_url).sheet1
+    contacts = client.open_by_url(usr.CONTACTS_URL).sheet1
     user_dict = {}
     for row in range(2, contacts.row_count):
         data = contacts.row_values(row)
@@ -95,7 +95,7 @@ def make_forms(outdir):
     processed reimbursement entries, and save those forms in output/user.
     returns the filepaths of the forms generated for later use.
     """
-    rmbs = client.open_by_url(usr.rmbs_url).sheet1
+    rmbs = client.open_by_url(usr.RMBS_URL).sheet1
     row_range = get_new_row_range(rmbs)
     print "Loading data for rows", row_range
     all_data = get_rmbs_data(rmbs, row_range)
