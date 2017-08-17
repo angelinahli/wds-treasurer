@@ -7,4 +7,3 @@ Thanks to [Twilio](https://www.twilio.com/blog/2017/02/an-easy-way-to-read-and-w
 
 To Do
 -----
-* Schedule run() to run each morning (with wifi access)
