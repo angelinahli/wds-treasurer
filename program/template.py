@@ -11,10 +11,21 @@ class FormTemplate:
     be filled with data.
     """
 
-    def _save_file(self, wb, filepath):
+    def __init__(self, filepath=None):
+        self.filepath = filepath
+
+    def _check_filepath(self):
+        if self.filepath == None:
+            raise ValueError("filepath must be specified")
+
+    def _save_file(self, wb, filepath=None):
         """
         Saves file if filepath is specified.
+        Defaults to using self.filepath if no other filepath is specified.
+        Doesn't save if filepath isn't specified.
         """
+        if filepath == None:
+            filepath = self.filepath
         if filepath:
             wb.save(filepath)
 
@@ -25,7 +36,7 @@ class FormTemplate:
         """
         amt_cell = usr.tmp_vars['evt_amt']
         cat_cell = usr.tmp_vars['evt_fund']
-        for fund in ['SOFC', 'PROFITS', 'CLCE']:
+        for fund in usr.tmp_funds:
             ws[usr.tmp_funds[fund]] = '=sumif({cat},"{fund}",{amt})'.format(
                                        amt=amt_cell,
                                        fund=fund,
@@ -35,7 +46,7 @@ class FormTemplate:
                                       start=usr.tmp_funds['SOFC'],
                                       end=usr.tmp_funds['CLCE'])
 
-    def _format_sheet(self, ws):
+    def _add_seal(self, ws):
         """
         Given a worksheet template, adds seal.
         """
@@ -43,25 +54,25 @@ class FormTemplate:
         seal = Image("temp/wellesley_seal.png", size=(75, 91))
         ws.add_image(seal, usr.tmp_vars['seal'])
 
-    def get_empty(self, filepath=None):
+    def get_empty(self):
         """
         Returns empty template.
         Optionally saves as an Excel workbook if filepath is
         specified.
         """
-        wb = load_workbook(filename='temp/template.xlsx')
-        self._format_sheet(ws)
-        self._save_file(wb, filepath)
+        wb = load_workbook(filename=usr.TEMPPATH)
+        self._add_seal(ws)
+        self._save_file(wb)
         return wb
 
-    def get_new(self, filepath=None):
+    def get_new(self):
         """
         Returns new template with org_name, bookkeeper,
         treasurer and address stub variables filled.
         Optionally saves as an Excel workbook if filepath is
         specified.
         """
-        wb = load_workbook(filename='temp/template.xlsx')
+        wb = load_workbook(filename=usr.TEMPPATH)
         ws = wb.active
 
         ws[usr.tmp_vars['org_name']] = usr.ORG_NAME
@@ -69,11 +80,11 @@ class FormTemplate:
         ws[usr.tmp_vars['treasurer']] = usr.TREASURER
         ws[usr.tmp_vars['address']] = usr.ADDRESS
 
-        self._format_sheet(ws)
-        self._save_file(wb, filepath)
+        self._add_seal(ws)
+        self._save_file(wb)
         return wb
 
-    def get_completed(self, data_dict, filepath=None):
+    def get_completed(self, data_dict):
         """
         Return completed form given a dictionary of values
         to plug into the template.
@@ -89,25 +100,29 @@ class FormTemplate:
             # only available data will be filled in
             ws[usr.tmp_vars[varname]] = data_dict[varname]
         self._calculate_fund_total(ws)
-        self._save_file(wb, filepath)
+        self._save_file(wb)
         return wb
 
-    def get_existing(self, filepath):
+    def get_existing(self):
         """
         retrieves and returns an existing template.
         """
-        return load_workbook(filename=filepath)
+        self._check_filepath()
+        wb = load_workbook(filename=self.filepath)
+        ws = wb.active
+        self._add_seal(ws)
+        return wb
 
-    def format_existing(self, filepath):
+    def format_existing(self):
         """
         formats existing template and then returns new file and saves
         with new filename.
         """
-        wb = self.get_existing(filepath)
+        self._check_filepath()
+        wb = self.get_existing()
         ws = wb.active
         new_filepath = '{old_filename}_new.xlsx'.format(
-                         old_filename=filepath.split('.')[0])
-
-        self._format_sheet(ws)
+                         old_filename=self.filepath.rsplit('.', 1)[0])
+        self._add_seal(ws)
         self._calculate_fund_total(ws)
         self._save_file(wb, new_filepath)

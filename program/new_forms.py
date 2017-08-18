@@ -114,6 +114,6 @@ def make_forms(outdir):
                     date=date)
         print "Generating form {}".format(filepath)
         filepaths.append(filepath)
-        FormTemplate().get_completed(data_dict, filepath)
+        FormTemplate(filepath=filepath).get_completed(data_dict)
     update_rows(rmbs, row_range)
     return filepaths

@@ -1,12 +1,11 @@
 import schedule
+import time
 from os import makedirs
 from shutil import rmtree
-from time import sleep
 
+from config.user_info import OUTDIR
 from program.email_forms import send_forms
 from program.new_forms import make_forms
-
-OUTDIR = "output/user"
 
 def clear_cache(outdir):
     """
@@ -25,11 +24,13 @@ def run(outdir):
         save them in the outdir;
     (c) email user the results
     """
+    start = time.time()
     print "**Running program to generate reimbursement forms**"
     clear_cache(outdir)
     # make_forms returns form pathdirs
     forms = make_forms(outdir)
     send_forms(forms)
+    print "runtime: ", time.time() - start
 
 def scheduled_run(outdir, exec_time):
     """
@@ -39,6 +40,6 @@ def scheduled_run(outdir, exec_time):
     schedule.every().tuesday.at(exec_time).do(run(outdir))
     while True:
         schedule.run_pending()
-        sleep(300)
+        time.sleep(300)
 
 run(OUTDIR)

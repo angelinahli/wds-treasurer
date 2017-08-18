@@ -15,33 +15,36 @@ def send_forms(files):
     list of target addresses. 
     """
     if files:
+        from_email = usr.EMAIL_LOGIN + "@gmail.com"
+        to_email = usr.TARGET_ADDRESSES
+
         msg = MIMEMultipart()
         msg["Subject"] = "WDS - New reimbursements"
-        msg["From"] = usr.EMAIL_LOGIN + "@gmail.com"
-        msg["To"] = COMMASPACE.join(usr.TARGET_ADDRESSES)
+        msg["From"] = from_email
+        msg["To"] = COMMASPACE.join(to_email)
         msg["Date"] = formatdate(localtime=True)
 
-        filenames = {file: basename(file) for file in files}
+        filenames = {pathname: basename(pathname) for pathname in files}
         body_text = [temp_body]
         for file in filenames.values():
             body_text.append("- {}\n".format(file))
         body = MIMEText(''.join(body_text), 'plain')
         msg.attach(body)
 
-        for file in filenames:
+        for path in filenames:
             part = MIMEBase("application", "octet-stream")
-            part.set_payload(open(file, "rb").read())
+            part.set_payload(open(path, "rb").read())
             encoders.encode_base64(part)
             part.add_header(
                 "Content-Disposition", 
                 "attachment", 
-                filename=filenames[file]
+                filename=filenames[path]
                 )
             msg.attach(part)
 
         server = SMTP("smtp.gmail.com", 587)
         server.starttls()
         server.login(usr.EMAIL_LOGIN, usr.EMAIL_PASSWORD)
-        server.sendmail(msg["From"], msg["To"].split(COMMASPACE),msg.as_string())
+        server.sendmail(from_email, to_email, msg.as_string())
         server.quit()
         print "Email sent"
