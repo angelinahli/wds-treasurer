@@ -54,17 +54,6 @@ class FormTemplate:
         seal = Image("temp/wellesley_seal.png", size=(75, 91))
         ws.add_image(seal, usr.tmp_vars['seal'])
 
-    def get_empty(self):
-        """
-        Returns empty template.
-        Optionally saves as an Excel workbook if filepath is
-        specified.
-        """
-        wb = load_workbook(filename=usr.TEMPPATH)
-        self._add_seal(ws)
-        self._save_file(wb)
-        return wb
-
     def get_new(self):
         """
         Returns new template with org_name, bookkeeper,
@@ -102,27 +91,3 @@ class FormTemplate:
         self._calculate_fund_total(ws)
         self._save_file(wb)
         return wb
-
-    def get_existing(self):
-        """
-        retrieves and returns an existing template.
-        """
-        self._check_filepath()
-        wb = load_workbook(filename=self.filepath)
-        ws = wb.active
-        self._add_seal(ws)
-        return wb
-
-    def format_existing(self):
-        """
-        formats existing template and then returns new file and saves
-        with new filename.
-        """
-        self._check_filepath()
-        wb = self.get_existing()
-        ws = wb.active
-        new_filepath = '{old_filename}_new.xlsx'.format(
-                         old_filename=self.filepath.rsplit('.', 1)[0])
-        self._add_seal(ws)
-        self._calculate_fund_total(ws)
-        self._save_file(wb, new_filepath)
