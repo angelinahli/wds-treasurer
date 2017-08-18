@@ -4,6 +4,8 @@ import config.user_info as usr
 from config.gsheets import client
 from program.template import FormTemplate
 
+# Get user data
+
 def get_user_dict():
     """
     returns dictionary of dictionaries for each user (student member),
@@ -12,7 +14,7 @@ def get_user_dict():
     cols = usr.contacts_cols
     contacts = client.open_by_url(usr.CONTACTS_URL).sheet1
     user_dict = {}
-    for row in range(2, contacts.row_count):
+    for row in range(usr.CONTACTS_ROWSTART, contacts.row_count+1):
         data = contacts.row_values(row)
         if not any(data):
             break
@@ -21,7 +23,6 @@ def get_user_dict():
             'stu_id': data[cols['stu_id'] - 1],
             'stu_unit_box': data[cols['stu_unit_box'] - 1]
         }
-
     return user_dict
 
 def get_new_row_range(ws):
@@ -31,11 +32,11 @@ def get_new_row_range(ws):
     yet been processed.
     """
     row_range = []
-    for row in range(2, ws.row_count):
+    for row in range(usr.RMBS_ROWSTART, ws.row_count+1):
         # if timestamp is missing, data assumed to be missing
         if not ws.cell(row, usr.rmbs_cols['date']).value:
             break
-        # has form is None or false if no form has been created yet
+        # has_form is None if no form has been created yet
         if not ws.cell(row, usr.rmbs_cols['has_form']).value:
             row_range.append(row)
     return row_range
@@ -88,6 +89,8 @@ def get_rmbs_data(ws, row_range):
     """
     user_data = get_user_dict()
     return [get_data_dict(ws, row, user_data) for row in row_range]
+
+# Make forms
 
 def make_forms(outdir):
     """

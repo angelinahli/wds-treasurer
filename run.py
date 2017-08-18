@@ -1,7 +1,7 @@
 import schedule
-import time
 from os import makedirs
 from shutil import rmtree
+from time import sleep
 
 from program.email_forms import send_forms
 from program.new_forms import make_forms
@@ -39,6 +39,6 @@ def scheduled_run(outdir, exec_time):
     schedule.every().tuesday.at(exec_time).do(run(outdir))
     while True:
         schedule.run_pending()
-        time.sleep(300)
+        sleep(300)
 
 run(OUTDIR)

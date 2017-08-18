@@ -24,7 +24,7 @@ def send_forms(files):
         filenames = {file: basename(file) for file in files}
         body_text = [temp_body]
         for file in filenames.values():
-            body_text.append("-{}\n".format(file))
+            body_text.append("- {}\n".format(file))
         body = MIMEText(''.join(body_text), 'plain')
         msg.attach(body)
 
