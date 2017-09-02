@@ -17,11 +17,12 @@ def get_user_dict():
     for row in range(usr.CONTACTS_ROWSTART, contacts.row_count+1):
         data = contacts.row_values(row)
         if not any(data):
+            # assumes rows are filled in from top down
             break
         user_dict[ data[cols['username'] - 1] ] = {
-            'stu_name': data[cols['stu_name'] - 1],
-            'stu_id': data[cols['stu_id'] - 1],
-            'stu_unit_box': data[cols['stu_unit_box'] - 1]
+            var: data[cols['username'] - 1] for var in [
+                'stu_name', 'stu_id', 'stu_unit_box'
+            ]
         }
     return user_dict
 
@@ -32,13 +33,13 @@ def get_new_row_range(ws):
     yet been processed.
     """
     row_range = []
-    for row in range(usr.RMBS_ROWSTART, ws.row_count+1):
+    for row_num in range(usr.RMBS_ROWSTART, ws.row_count+1):
         # if timestamp is missing, data assumed to be missing
-        if not ws.cell(row, usr.rmbs_cols['date']).value:
+        if not ws.cell(row_num, usr.rmbs_cols['date']).value:
             break
         # has_form is None if no form has been created yet
-        if not ws.cell(row, usr.rmbs_cols['has_form']).value:
-            row_range.append(row)
+        if not ws.cell(row_num, usr.rmbs_cols['has_form']).value:
+            row_range.append(row_num)
     return row_range
 
 def update_rows(ws, row_range):
@@ -46,8 +47,8 @@ def update_rows(ws, row_range):
     given a worksheet and a list of row range, updates rows to indicate a 
     form has been created for each of those rows.
     """
-    for row in row_range:
-        ws.update_cell(row, usr.rmbs_cols['has_form'], True)
+    for row_num in row_range:
+        ws.update_cell(row_num, usr.rmbs_cols['has_form'], True)
     print "Rows {} have been processed!".format(row_range)
 
 def get_rmbs_dict(row_data):
@@ -85,10 +86,11 @@ def get_data_dict(ws, row_number, user_data):
     try:
         user_vals = dict(user_data[username], **rmbs_data)
     except KeyError:
-        error_msg = "User {} has not submitted contact info".format(username)
+        error_msg = "User {} has not submitted contact info.".format(username)
         raise ValueError(error_msg)
     data_dict = {var: user_vals[var] for var in usr.tmp_vars if var in user_vals}
-    return format_data_dict(data_dict)
+    bool_data = {var: rmbs_data[var]=='' for var in ['has_rct', 'has_mult']}
+    return format_data_dict(data_dict), bool_data
     
 def get_rmbs_data(ws, row_range):
     """
@@ -105,14 +107,15 @@ def make_forms(outdir):
     """
     when run, will automatically generate forms for all non
     processed reimbursement entries, and save those forms in output/user.
-    returns the filepaths of the forms generated for later use.
+    returns data for the forms generated for later use.
     """
     rmbs = client.open_by_url(usr.RMBS_URL).sheet1
     row_range = get_new_row_range(rmbs)
     print "Loading data for rows", row_range
-    all_data = get_rmbs_data(rmbs, row_range)
-    filepaths = []
-    for data_dict in all_data:
+    all_data = get_rmbs_data(rmbs, row_range)    
+    form_data = []
+    for rmbs_row in all_data:
+        data_dict = rmbs_row[0]
         # date structured as: "%m/%d/%Y %H:%M:%S"
         date = data_dict['date'].split()[0].replace('/', '')
         # name structured as "Angelina Li"
@@ -122,7 +125,7 @@ def make_forms(outdir):
                     name=name,
                     date=date)
         print "Generating form {}".format(filepath)
-        filepaths.append(filepath)
         FormTemplate(filepath=filepath).get_completed(data_dict)
+        form_data.append((filepath, rmbs_row[1]))
     update_rows(rmbs, row_range)
-    return filepaths
+    return form_data
