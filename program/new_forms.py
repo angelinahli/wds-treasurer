@@ -57,21 +57,14 @@ def get_rmbs_dict(row_data):
     """
     return {var: row_data[usr.rmbs_cols[var] - 1] for var in usr.rmbs_cols}
 
-def get_data_dict(ws, row_number, user_data):
+def format_data_dict(data_dict):
     """
-    given a gspread worksheet of the form accepting new reimbursements,
-    the row number to access and a dictionary of data for each user,
-    returns a dictionary of all data associated with that row of reimbursements.
+    helper function for get_data_dict
     """
-    rmbs_data = get_rmbs_dict(ws.row_values(row_number))
-    username = rmbs_data['username']
-    try:
-        user_values = dict(user_data[username], **rmbs_data)
-    except KeyError:
-        raise ValueError("User {} has not submitted their info to the contacts form".format(username))
-    data_dict = {var: user_values[var] for var in usr.tmp_vars if var in user_values}
     if ' for tournament' in data_dict['evt_purpose']:
-        data_dict['evt_cat'] = data_dict['evt_purpose'].replace(' for tournament', '')
+        data_dict['evt_cat'] = data_dict['evt_purpose'].replace(
+            ' for tournament', 
+            '')
     if data_dict['evt_cat'] == 'Transportation':
         data_dict['evt_fund'] = 'SOFC'
     for value in ['evt_amt', 'evt_num']:
@@ -81,6 +74,22 @@ def get_data_dict(ws, row_number, user_data):
     data_dict['stu_unit_box'] = 'Unit {}'.format(data_dict['stu_unit_box'])
     return data_dict
 
+def get_data_dict(ws, row_number, user_data):
+    """
+    given a gspread worksheet of the form accepting new reimbursements,
+    the row number to access and a dictionary of data for each user,
+    returns a dictionary of all data associated with that row of reimbursements.
+    """
+    rmbs_data = get_rmbs_dict(ws.row_values(row_number))
+    username = rmbs_data['username']
+    try:
+        user_vals = dict(user_data[username], **rmbs_data)
+    except KeyError:
+        error_msg = "User {} has not submitted contact info".format(username)
+        raise ValueError(error_msg)
+    data_dict = {var: user_vals[var] for var in usr.tmp_vars if var in user_vals}
+    return format_data_dict(data_dict)
+    
 def get_rmbs_data(ws, row_range):
     """
     given a gspread worksheet representing the form accepting new 
