@@ -14,8 +14,8 @@ def get_user_dict():
     cols = usr.contacts_cols
     contacts = client.open_by_url(usr.CONTACTS_URL).sheet1
     user_dict = {}
-    for row in range(usr.CONTACTS_ROWSTART, contacts.row_count+1):
-        data = contacts.row_values(row)
+    for row_num in range(usr.CONTACTS_ROWSTART, contacts.row_count+1):
+        data = contacts.row_values(row_num)
         if not any(data):
             # assumes rows are filled in from top down
             break
