@@ -62,10 +62,7 @@ def format_data_dict(data_dict):
     """
     helper function for get_data_dict
     """
-    if ' for tournament' in data_dict['evt_purpose']:
-        data_dict['evt_cat'] = data_dict['evt_purpose'].replace(
-            ' for tournament', 
-            '')
+    data_dict['evt_cat'] = data_dict['evt_purpose']
     if data_dict['evt_cat'] == 'Transportation':
         data_dict['evt_fund'] = 'SOFC'
     for value in ['evt_amt', 'evt_num']:
@@ -89,7 +86,7 @@ def get_data_dict(ws, row_number, user_data):
         error_msg = "User {} has not submitted contact info.".format(username)
         raise ValueError(error_msg)
     data_dict = {var: user_vals[var] for var in usr.tmp_vars if var in user_vals}
-    bool_data = {var: rmbs_data[var]=='' for var in ['has_rct', 'has_mult']}
+    bool_data = {var: bool(rmbs_data[var]) for var in ['has_rct', 'has_mult']}
     return format_data_dict(data_dict), bool_data
     
 def get_rmbs_data(ws, row_range):
