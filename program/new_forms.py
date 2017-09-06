@@ -49,7 +49,7 @@ def update_rows(ws, row_range):
     """
     for row_num in row_range:
         ws.update_cell(row_num, usr.rmbs_cols['has_form'], True)
-    print "Rows {} have been processed!".format(",".join(row_range))
+    print "Rows {} have been processed!".format(row_range)
 
 def get_rmbs_dict(row_data):
     """
@@ -108,7 +108,7 @@ def make_forms(outdir):
     """
     rmbs = client.open_by_url(usr.RMBS_URL).sheet1
     row_range = get_new_row_range(rmbs)
-    print "Loading data for rows", ",".join(row_range)
+    print "Loading data for rows", row_range
     all_data = get_rmbs_data(rmbs, row_range)    
     form_data = []
     for rmbs_row in all_data:
