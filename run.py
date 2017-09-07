@@ -16,20 +16,21 @@ def clear_cache(outdir):
     makedirs(outdir)
     print "Cache cleared"
 
-def run(outdir):
+def run(outdir, testing=False):
     """
     Given the path of the output directory, will:
     (a) clear cache within that outdir;
     (b) generate forms for any new reimbursement entries and
         save them in the outdir;
     (c) email user the results
+    If testing is set to true, only emails program admin.
     """
     start = time.time()
     print "**Running program to generate reimbursement forms**"
     clear_cache(outdir)
     # make_forms returns form pathdirs
     forms = make_forms(outdir)
-    send_forms(forms)
+    send_forms(forms, testing)
     print "runtime:", time.time() - start
 
 def scheduled_run(outdir, exec_time):
@@ -42,4 +43,4 @@ def scheduled_run(outdir, exec_time):
         schedule.run_pending()
         time.sleep(300)
 
-run(OUTDIR)
+run(OUTDIR, testing=True)

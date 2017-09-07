@@ -68,6 +68,7 @@ class FormTemplate:
         ws[usr.tmp_vars['bookkeeper']] = usr.BOOKKEEPER
         ws[usr.tmp_vars['treasurer']] = usr.TREASURER
         ws[usr.tmp_vars['address']] = usr.ADDRESS
+        ws[usr.tmp_vars['sofc_fund_num']] = usr.SOFC_FUND_NUM
 
         self._add_seal(ws)
         self._save_file(wb)

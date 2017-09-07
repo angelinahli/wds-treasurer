@@ -9,7 +9,7 @@ from email.utils import COMMASPACE, formatdate
 import config.user_info as usr
 from temp.temp_email import temp_body
 
-def send_forms(file_data):
+def send_forms(file_data, testing=False):
     """
     Given the output of new_forms.make_forms, will email those forms to a
     list of target addresses.
@@ -18,6 +18,8 @@ def send_forms(file_data):
     if file_data:
         from_email = usr.EMAIL_LOGIN + "@gmail.com"
         to_email = usr.TARGET_ADDRESSES
+        if testing:
+            to_email = usr.ADMIN_ADDRESS
 
         msg = MIMEMultipart()
         msg["Subject"] = "WDS - New reimbursements"

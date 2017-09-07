@@ -20,10 +20,11 @@ def get_user_dict():
             # assumes rows are filled in from top down
             break
         user_dict[ data[cols['username'] - 1] ] = {
-            var: data[cols['username'] - 1] for var in [
+            var: data[cols[var] - 1] for var in [
                 'stu_name', 'stu_id', 'stu_unit_box'
             ]
         }
+    print user_dict
     return user_dict
 
 def get_new_row_range(ws):
