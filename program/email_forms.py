@@ -9,13 +9,13 @@ from email.utils import COMMASPACE, formatdate
 import config.user_info as usr
 from temp.temp_email import temp_body
 
-def send_forms(file_data, testing=False):
+def send_forms(files, testing=False):
     """
     Given the output of new_forms.make_forms, will email those forms to a
     list of target addresses.
     Each line of file_data is structured as [pathname, {check_value: bool}]
     """
-    if file_data:
+    if files:
         from_email = usr.EMAIL_LOGIN + "@gmail.com"
         to_email = usr.TARGET_ADDRESSES
         if testing:
@@ -27,24 +27,12 @@ def send_forms(file_data, testing=False):
         msg["To"] = COMMASPACE.join(to_email)
         msg["Date"] = formatdate(localtime=True)
 
+        filenames = {pathname: basename(pathname) for pathname in files}
         body_text = [temp_body]
-        for file in file_data:
-            filename = basename(file[0])
-            text = ["- {}".format(filename)]
-            warnings = file[1]
-            if any(warnings.values()):
-                msgs = " | warnings: {}".format(
-                    ", ".join([val for val in warnings if warnings[val]])
-                    )
-                text.append(msgs)
-            text.append("\n")
-            body_text.append("".join(text))
-            
+        for file in filenames.values():
+            body_text.append("- {}\n".format(file))
         body = MIMEText(''.join(body_text), 'plain')
         msg.attach(body)
-
-        paths = [file[0] for file in file_data]
-        filenames = {pathname: basename(pathname) for pathname in paths}
 
         for path in filenames:
             part = MIMEBase("application", "octet-stream")

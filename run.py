@@ -31,7 +31,7 @@ def run(outdir, testing=False):
     # make_forms returns form pathdirs
     forms = make_forms(outdir)
     send_forms(forms, testing)
-    print "runtime:", time.time() - start
+    print "Runtime:", time.time() - start
 
 def scheduled_run(outdir, exec_time):
     """
