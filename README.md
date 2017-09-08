@@ -9,3 +9,7 @@ Non-standard libraries used
 ---------------------------
 * [openpyxl](https://openpyxl.readthedocs.io/en/default/) - For handling excel files
 * [gspread](http://gspread.readthedocs.io/en/latest/) - For handling google sheets (using [OAuth2client authorization framework](http://alexsavio.github.io/gspread_oauth2client_intro.html))
+
+To Do
+-----
+* Update the example output
