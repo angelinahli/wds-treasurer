@@ -7,7 +7,6 @@ from config.user_info import OUTDIR
 from email_forms import Email
 from new_forms import make_files
 
-
 def clear_cache(outdir):
     """
     Removes all files in the output directory before generating
@@ -33,14 +32,17 @@ def run(outdir, testing_mode=False):
     Email(filepaths, testing_mode).send_files("WDS - New Reimbursements")
     print "Runtime:", time.time() - start
 
-def scheduled_run(outdir, exec_time):
+def scheduled_run(outdir, exec_time, testing_mode=False):
     """
     Given a string of the time to execute the function,
     will execute run() every week at approximately that time.
     """
-    schedule.every().tuesday.at(exec_time).do(run(outdir))
+    def job():
+        run(outdir, testing_mode)
+
+    schedule.every().tuesday.at(exec_time).do(run(outdir, testing_mode))
     while True:
         schedule.run_pending()
-        time.sleep(300)
+        time.sleep(60)
 
 run(OUTDIR, testing_mode=True)

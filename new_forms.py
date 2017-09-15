@@ -37,27 +37,26 @@ def get_all_data(rmbs_sheet, row_range, user_data):
 def make_files(outdir):
     """
     """
-    user_data = UserWorksheet(
-        usr.CONTACTS_URL,
-        usr.contacts_cols,
-        usr.CONTACTS_ROWSTART).get_user_data()
-
     rmbs_sheet = ReimbursementWorksheet(
         usr.RMBS_URL,
         usr.rmbs_cols,
         usr.RMBS_ROWSTART)
-
     row_range = rmbs_sheet.get_new_data_range()
     print "Loading data for rows", row_range
+
+    user_data = UserWorksheet(
+        usr.CONTACTS_URL,
+        usr.contacts_cols,
+        usr.CONTACTS_ROWSTART).get_user_data()
     all_data = get_all_data(rmbs_sheet, row_range, user_data)
     filepaths = []
 
     for row_data in all_data:
         # first generate a filename
         # date structured as: "%m/%d/%Y %H:%M:%S"
-        date = data_dict['date'].split()[0].replace('/', '')
+        date = row_data['date'].split()[0].replace('/', '')
         # name structured as "Angelina Li"
-        name = data_dict['stu_name'].split()[0].lower()
+        name = row_data['stu_name'].split()[0].lower()
         filename = "{outdir}/{name}_{date}".format(
                     outdir=outdir,
                     name=name,
@@ -68,13 +67,13 @@ def make_files(outdir):
         if other_student_usernames:
             student_file = StudentsFile(filepath=filename + ".txt")
             student_file.get_new_file(other_student_usernames, user_data)
-            filepath.append(student_file.filepath)
-        # then make forms
+            filepaths.append(student_file.filepath)
+        # then make form
         form_data = {var: row_data[var] for var in usr.tmp_vars 
                      if var in row_data}
         rmbs_form = Form(filepath=filename + ".xlsx")
         rmbs_form.get_completed(form_data)
-        filepath.append(rmbs_form.filepath)
+        filepaths.append(rmbs_form.filepath)
 
     rmbs_sheet.update_processed_rows(row_range)
     return filepaths

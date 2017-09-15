@@ -85,6 +85,7 @@ class Form:
         form_data: Dictionary of user specific data for each form, where
         keys are strings corresponding to usr.tmp_vars key names. 
         """
+        print "Generating form {}".format(self.filepath)
         wb = self.get_new()
         ws = wb.active
         for varname in form_data:

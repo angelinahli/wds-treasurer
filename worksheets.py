@@ -25,14 +25,14 @@ class Worksheet:
 
 class UserWorksheet(Worksheet):
 
-    def get_user_data():
+    def get_user_data(self):
         """
         returns dictionary of dictionaries for each user, with username as key
         and user data dictionary as values.
         """
         data_column_values = {
-            var: value - 1 for var, value in self.column_values 
-            if key != "username"}
+            var: value - 1 for var, value in self.column_values.items() \
+            if var != "username"}
         user_dict = {}
         for row_num in range(self.start_row, self.ws.row_count + 1):
             row_data = self.ws.row_values(row_num)
@@ -47,7 +47,7 @@ class UserWorksheet(Worksheet):
 
 class ReimbursementWorksheet(Worksheet):
 
-    def get_new_data_range():
+    def get_new_data_range(self):
         """
         returns a list of the row numbers that haven't yet been processed.
         """
@@ -60,7 +60,7 @@ class ReimbursementWorksheet(Worksheet):
                 row_range.append(row_num)
         return row_range
 
-    def get_rmbs_row_data(row_data):
+    def get_rmbs_row_data(self, row_data):
         """
         row_data (list): list of data from a single row.
         returns all reimbursement data associated with specified row.
@@ -68,7 +68,7 @@ class ReimbursementWorksheet(Worksheet):
         return {var: row_data[self.column_values[var] - 1] for var in
             self.column_values}
 
-    def update_processed_rows(row_range):
+    def update_processed_rows(self, row_range):
         for row_num in row_range:
             self.ws.update_cell(row_num, self.column_values["has_form"], True)
         print "Row range: {} has been processed!".format(row_range)
