@@ -27,7 +27,7 @@ class Email:
         """
         body_text = []
         for file in filenames.values():
-        body_text.append("- {}\n".format(file))
+            body_text.append("- {}\n".format(file))
         return MIMEText(temp_body + ''.join(body_text), 'plain')
 
     def _get_multipart_email(self, subject, filenames):
@@ -35,14 +35,14 @@ class Email:
         Defines and returns a MIMEMultipart email object.
         subject: String subject.
         """
-        from_email = usr.EMAIL_LOGIN + "@gmail.com"
-        to_email = usr.ADMIN_ADDRESS if self.testing_mode 
-                   else usr.TARGET_ADDRESSES
+        self.from_email = usr.EMAIL_LOGIN + "@gmail.com"
+        self.to_email = usr.ADMIN_ADDRESS if self.testing_mode \
+                        else usr.TARGET_ADDRESSES
 
         msg = MIMEMultipart()
         msg["Subject"] = subject
-        msg["From"] = from_email
-        msg["To"] = COMMASPACE.join(to_email)
+        msg["From"] = self.from_email
+        msg["To"] = COMMASPACE.join(self.to_email)
         msg["Date"] = formatdate(localtime=True)
 
         body = self._get_body(filenames)
@@ -70,13 +70,16 @@ class Email:
 
         if file_attachments:
             filenames = {pathname: basename(pathname) for pathname in 
-                         fileAttachments}
+                         file_attachments}
             multipart_email = self._get_multipart_email(subject, filenames)
 
             server = SMTP("smtp.gmail.com", 587)
             server.starttls()
             server.login(usr.EMAIL_LOGIN, usr.EMAIL_PASSWORD)
-            server.sendmail(from_email, to_email, multipart_email.as_string())
+            server.sendmail(
+                self.from_email, 
+                self.to_email, 
+                multipart_email.as_string())
             server.quit()
 
             print "Email sent"

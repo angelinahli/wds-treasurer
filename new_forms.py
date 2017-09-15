@@ -3,7 +3,7 @@ from re import split
 
 import config.user_info as usr
 from config.gsheets import client
-from program.template import FormTemplate
+from template import FormTemplate
 
 # Get user data
 
@@ -69,7 +69,8 @@ def get_student_data(student_usernames, user_data):
     try:
         student_data = [user_data[user] for user in usernames]
     except KeyError:
-        error_msg = "A user has not submitted contact info."
+        error_msg = """A user from below has not submitted contact info.
+        List of student usernames: {}""".format(", ".join(usernames))
         raise ValueError(error_msg)
     return student_data
 
