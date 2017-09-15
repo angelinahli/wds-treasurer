@@ -4,7 +4,7 @@ from os import makedirs
 from shutil import rmtree
 
 from config.user_info import OUTDIR
-from program.email_forms import send_forms
+from program.email_forms import Email
 from program.new_forms import make_forms
 
 def clear_cache(outdir):
@@ -16,7 +16,7 @@ def clear_cache(outdir):
     makedirs(outdir)
     print "Cache cleared"
 
-def run(outdir, testing=False):
+def run(outdir, testing_mode=False):
     """
     Given the path of the output directory, will:
     (a) clear cache within that outdir;
@@ -29,8 +29,8 @@ def run(outdir, testing=False):
     print "**Running program to generate reimbursement forms**"
     clear_cache(outdir)
     # make_forms returns form pathdirs
-    forms = make_forms(outdir)
-    send_forms(forms, testing)
+    form_paths = make_forms(outdir)
+    Email(form_paths, testing_mode).send_files()
     print "Runtime:", time.time() - start
 
 def scheduled_run(outdir, exec_time):
@@ -43,4 +43,4 @@ def scheduled_run(outdir, exec_time):
         schedule.run_pending()
         time.sleep(300)
 
-run(OUTDIR, testing=True)
+run(OUTDIR, testing_mode=True)

@@ -9,31 +9,45 @@ from email.utils import COMMASPACE, formatdate
 import config.user_info as usr
 from temp.temp_email import temp_body
 
-def send_forms(files, testing=False):
+class Email:
     """
-    Given the output of new_forms.make_forms, will email those forms to a
-    list of target addresses.
-    Each line of file_data is structured as [pathname, {check_value: bool}]
+    Represents an email that contains all the files created by this
+    program.
     """
-    if files:
+
+    def __init__(self, files, testing_mode=False):
+        self.files = files
+        self.testing_mode = testing_mode
+
+    def _get_body(self, filenames):
+        """
+        Defines a new email body and returns it as a MIMEText object.
+        Will only be called if there is at least one file in self.files.
+        temp_body is a string generic email header.
+        """
+        body_text = []
+        for file in filenames.values():
+        body_text.append("- {}\n".format(file))
+        return MIMEText(temp_body + ''.join(body_text), 'plain')
+
+    def _get_multipart_email(self, subject, filenames):
+        """
+        Defines and returns a MIMEMultipart email object.
+        subject: String subject.
+        """
         from_email = usr.EMAIL_LOGIN + "@gmail.com"
-        to_email = usr.TARGET_ADDRESSES
-        if testing:
-            to_email = usr.ADMIN_ADDRESS
+        to_email = usr.ADMIN_ADDRESS if self.testing_mode 
+                   else usr.TARGET_ADDRESSES
 
         msg = MIMEMultipart()
-        msg["Subject"] = "WDS - New reimbursements"
+        msg["Subject"] = subject
         msg["From"] = from_email
         msg["To"] = COMMASPACE.join(to_email)
         msg["Date"] = formatdate(localtime=True)
 
-        filenames = {pathname: basename(pathname) for pathname in files}
-        body_text = [temp_body]
-        for file in filenames.values():
-            body_text.append("- {}\n".format(file))
-        body = MIMEText(''.join(body_text), 'plain')
+        body = self._get_body(filenames)
         msg.attach(body)
-
+        
         for path in filenames:
             part = MIMEBase("application", "octet-stream")
             part.set_payload(open(path, "rb").read())
@@ -45,9 +59,24 @@ def send_forms(files, testing=False):
                 )
             msg.attach(part)
 
-        server = SMTP("smtp.gmail.com", 587)
-        server.starttls()
-        server.login(usr.EMAIL_LOGIN, usr.EMAIL_PASSWORD)
-        server.sendmail(from_email, to_email, msg.as_string())
-        server.quit()
-        print "Email sent"
+        return msg
+
+    def send_files(self, subject):
+        """
+        Defines a server and sends files if they exist. (if they don't exist,
+        an empty list will be passed to the file parameter of this class)
+        """
+        file_attachments = self.files
+
+        if file_attachments:
+            filenames = {pathname: basename(pathname) for pathname in 
+                         fileAttachments}
+            multipart_email = self._get_multipart_email(subject, filenames)
+
+            server = SMTP("smtp.gmail.com", 587)
+            server.starttls()
+            server.login(usr.EMAIL_LOGIN, usr.EMAIL_PASSWORD)
+            server.sendmail(from_email, to_email, multipart_email.as_string())
+            server.quit()
+
+            print "Email sent"
