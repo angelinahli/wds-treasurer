@@ -4,8 +4,9 @@ from os import makedirs
 from shutil import rmtree
 
 from config.user_info import OUTDIR
-from email import Email
-from new_forms import make_forms
+from email_forms import Email
+from new_forms import make_files
+
 
 def clear_cache(outdir):
     """
@@ -28,8 +29,8 @@ def run(outdir, testing_mode=False):
     start = time.time()
     print "**Running program to generate reimbursement forms**"
     clear_cache(outdir)
-    form_paths = make_forms(outdir)
-    Email(form_paths, testing_mode).send_files("WDS - New Reimbursements")
+    filepaths = make_files(outdir)
+    Email(filepaths, testing_mode).send_files("WDS - New Reimbursements")
     print "Runtime:", time.time() - start
 
 def scheduled_run(outdir, exec_time):
